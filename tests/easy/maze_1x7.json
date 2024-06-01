@@ -1,0 +1,11 @@
+{
+"city": {
+    "rows": 1, 
+    "columns": 7, 
+    "blocked": []
+   }, 
+    "departure": [0, 3], 
+    "dangers": [], 
+    "trapped": [[0, 0, 1],[0, 6, 5]],
+    "fatal_dangers": []
+}
