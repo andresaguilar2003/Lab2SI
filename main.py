@@ -156,7 +156,7 @@ class Q_Learning_Agent:
 
 
 class Policy_Iteration_Agent:
-    def __init__(self, environment, gamma=0.9, theta=1e-3):
+    def __init__(self, environment, gamma=0.9, theta=1e-2):  # Incrementé theta para acelerar la convergencia
         self.environment = environment
         self.gamma = gamma
         self.theta = theta
@@ -185,9 +185,10 @@ class Policy_Iteration_Agent:
             valid_actions.append('Right')
         return valid_actions
 
-    def policy_evaluation(self, max_iterations=1000):
+    def policy_evaluation(self, max_iterations=100):  # Reducido el número máximo de iteraciones
         for iteration in range(max_iterations):
             delta = 0
+            new_value_function = np.copy(self.value_function)  # Uso de una nueva copia para optimizar
             for row in range(self.environment.rows):
                 for col in range(self.environment.columns):
                     state = (row, col)
@@ -197,8 +198,9 @@ class Policy_Iteration_Agent:
                     action = self.policy[row, col]
                     next_state = self.environment.get_next_state(state, action)
                     reward = self.environment.get_reward(next_state)
-                    self.value_function[row, col] = reward + self.gamma * self.value_function[next_state]
-                    delta = max(delta, abs(v - self.value_function[row, col]))
+                    new_value_function[row, col] = reward + self.gamma * self.value_function[next_state]
+                    delta = max(delta, abs(v - new_value_function[row, col]))
+            self.value_function = new_value_function
             if delta < self.theta:
                 break
         print(f"Policy Evaluation converged in {iteration + 1} iterations")
@@ -230,7 +232,7 @@ class Policy_Iteration_Agent:
             self.policy_evaluation()
             if self.policy_improvement():
                 break
-            iteration += 1
+            iteration += 20
         if iteration == max_iterations:
             print("\nReached maximum iterations\n")
         print("\nPolicy Iteration completed.")
@@ -241,7 +243,7 @@ class Policy_Iteration_Agent:
 
 
 # Parámetros de experimentación
-maze_sizes = [(1, 7), (10, 10)]
+maze_sizes = [(3, 4), (50, 50)]
 seeds = [42, 259, 1020, 33, 567]
 transition_probs = [1.0, 0.8, 0.6]
 gamma_values = [1.0, 0.95]
@@ -251,7 +253,7 @@ episodes = 100
 
 
 def load_maze_config(rows, cols):
-    config_path = f"tests/easy/maze_{rows}x{cols}.json"
+    config_path = f"tests/evaluation/maze_{rows}x{cols}.json"
     with open(config_path, 'r') as file:
         config = json.load(file)
     return config
