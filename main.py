@@ -77,7 +77,7 @@ class Environment:
 
 
 class Q_Learning_Agent:
-    def __init__(self, environment, alpha=0.1, gamma=0.9, epsilon=1.0, epsilon_decay=0.995, min_epsilon=0.01):
+    def __init__(self, environment, alpha=0.1, gamma=0.9, epsilon=1.0, epsilon_decay=0.999, min_epsilon=0.01):
         self.environment = environment
         self.alpha = alpha
         self.gamma = gamma
@@ -107,9 +107,7 @@ class Q_Learning_Agent:
         else:
             valid_actions = self.get_valid_actions(state)
             row, col = state
-            valid_actions_values = np.array([])
-            for a in valid_actions:
-                valid_actions_values = np.append(valid_actions_values, self.q_table[row, col, self.action_map[a]])
+            valid_actions_values = np.array([self.q_table[row, col, self.action_map[a]] for a in valid_actions])
             return valid_actions[np.argmax(valid_actions_values)]
 
     def update_q_value(self, state, action, reward, next_state):
@@ -134,7 +132,7 @@ class Q_Learning_Agent:
                 state = next_state
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= self.epsilon_decay
-            if (episode + 1) % 10 == 0:
+            if (episode + 1) % 500 == 0:
                 print(f"Episode {episode + 1}/{episodes} completed. Epsilon: {self.epsilon:.4f}")
         print("\nTraining completed.")
         print("\nQ-table:")
@@ -249,7 +247,7 @@ transition_probs = [1.0, 0.8, 0.6]
 gamma_values = [1.0, 0.95]
 alpha_values = [0.1, 0.5]
 epsilon_values = [1.0, 0.5]
-episodes = 100
+episodes = 10000
 
 
 def load_maze_config(rows, cols):
