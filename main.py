@@ -132,11 +132,11 @@ class Q_Learning_Agent:
                 state = next_state
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= self.epsilon_decay
-            if (episode + 1) % 20 == 0:
-                print(f"Episode {episode + 1}/{episodes} completed. Epsilon: {self.epsilon:.4f}")
-        print("\nTraining completed.")
-        print("\nQ-table:")
-        print(self.q_table)
+            #if (episode + 1) % 1 == 0:
+                #print(f"Episode {episode + 1}/{episodes} completed. Epsilon: {self.epsilon:.4f}")
+        #print("\nTraining completed.")
+        #print("\nQ-table:")
+        #print(self.q_table)
 
     def get_policy(self):
         policy = {}
@@ -201,7 +201,7 @@ class Policy_Iteration_Agent:
             self.value_function = new_value_function
             if delta < self.theta:
                 break
-        print(f"Policy Evaluation converged in {iteration + 1} iterations")
+        #print(f"Policy Evaluation converged in {iteration + 1} iterations")
 
     def policy_improvement(self):
         policy_stable = True
@@ -226,22 +226,22 @@ class Policy_Iteration_Agent:
         iteration = 0
         max_iterations = 100  # o cualquier número razonable
         while iteration < max_iterations:
-            print(f"Policy Iteration step {iteration}")
+            #print(f"Policy Iteration step {iteration}")
             self.policy_evaluation()
             if self.policy_improvement():
                 break
             iteration += 20
-        if iteration == max_iterations:
-            print("\nReached maximum iterations\n")
-        print("\nPolicy Iteration completed.")
-        print("\nPolicy:")
-        print(self.policy)
-        print("\nValue function:")
-        print(self.value_function)
+        #if iteration == max_iterations:
+        #    print("\nReached maximum iterations\n")
+        #print("\nPolicy Iteration completed.")
+        #print("\nPolicy:")
+        #print(self.policy)
+        #print("\nValue function:")
+        #print(self.value_function)
 
 
 # Parámetros de experimentación
-maze_sizes = [(3, 4), (20, 20)]
+maze_sizes = [(3, 4), (50, 50)]
 seeds = [42, 259, 1020, 33, 567]
 transition_probs = [1.0, 0.8, 0.6]
 gamma_values = [1.0, 0.95]
@@ -274,7 +274,7 @@ def evaluate_policy(agent, environment, episodes=100):
 
 
 def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes):
-    print(f"Loading config for maze size {maze_size}")
+    #print(f"Loading config for maze size {maze_size}")
     rows, cols = maze_size
     np.random.seed(seed)
     random.seed(seed)
@@ -283,14 +283,14 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
     environment = Environment(config, transition_prob=transition_prob)
 
     # Política Iterativa
-    print("\nStarting Policy Iteration")
+    #print("\nStarting Policy Iteration")
     pi_agent = Policy_Iteration_Agent(environment, gamma=gamma)
     start_time = time.time()
     pi_agent.policy_iteration()
     pi_time = time.time() - start_time
 
     # Q-Learning
-    print("\nStarting Q-Learning")
+    #print("\nStarting Q-Learning")
     q_agent = Q_Learning_Agent(environment, alpha=alpha, gamma=gamma, epsilon=epsilon)
     start_time = time.time()
     q_agent.train(episodes=episodes)
@@ -332,10 +332,10 @@ def main():
                 for gamma in gamma_values:
                     for alpha in alpha_values:
                         for epsilon in epsilon_values:
-                            print(f"\nRunning experiment with size {maze_size}, seed {seed}, transition_prob {transition_prob}, gamma {gamma}, alpha {alpha}, epsilon {epsilon}")
+                            #print(f"\nRunning experiment with size {maze_size}, seed {seed}, transition_prob {transition_prob}, gamma {gamma}, alpha {alpha}, epsilon {epsilon}")
                             result = run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes)
                             results.append(result)
-                            print(f"\nExperiment completed: {result}\n")
+                            print(f"Experiment completed: {result}")
     save_results(results)
 
 
