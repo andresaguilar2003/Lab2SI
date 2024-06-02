@@ -132,8 +132,6 @@ class Q_Learning_Agent:
                 state = next_state
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= self.epsilon_decay
-            #if (episode + 1) % 1 == 0:
-                #print(f"Episode {episode + 1}/{episodes} completed. Epsilon: {self.epsilon:.4f}")
         #print("\nTraining completed.")
         #print("\nQ-table:")
         #print(self.q_table)
@@ -154,7 +152,7 @@ class Q_Learning_Agent:
 
 
 class Policy_Iteration_Agent:
-    def __init__(self, environment, gamma=0.9, theta=1e-2):  # Incrementé theta para acelerar la convergencia
+    def __init__(self, environment, gamma=0.9, theta=1e-2):
         self.environment = environment
         self.gamma = gamma
         self.theta = theta
@@ -183,10 +181,10 @@ class Policy_Iteration_Agent:
             valid_actions.append('Right')
         return valid_actions
 
-    def policy_evaluation(self, max_iterations=100):  # Reducido el número máximo de iteraciones
+    def policy_evaluation(self, max_iterations=100):
         for iteration in range(max_iterations):
             delta = 0
-            new_value_function = np.copy(self.value_function)  # Uso de una nueva copia para optimizar
+            new_value_function = np.copy(self.value_function)
             for row in range(self.environment.rows):
                 for col in range(self.environment.columns):
                     state = (row, col)
@@ -224,7 +222,7 @@ class Policy_Iteration_Agent:
 
     def policy_iteration(self):
         iteration = 0
-        max_iterations = 100  # o cualquier número razonable
+        max_iterations = 100
         while iteration < max_iterations:
             #print(f"Policy Iteration step {iteration}")
             self.policy_evaluation()
@@ -249,7 +247,6 @@ alpha_values = [0.1, 0.5]
 epsilon_values = [1.0, 0.5]
 episodes = 100
 
-
 def load_maze_config(rows, cols):
     config_path = f"tests/evaluation/maze_{rows}x{cols}.json"
     with open(config_path, 'r') as file:
@@ -257,13 +254,13 @@ def load_maze_config(rows, cols):
     return config
 
 
-def evaluate_policy(agent, environment, episodes=100):
+def evaluate_policy(agent, environment, policy, episodes=100):
     total_reward = 0.0
     for _ in range(episodes):
         state = environment.start_state
         done = False
         while not done:
-            action = agent.policy[state[0], state[1]]
+            action = policy[state[0], state[1]]
             next_state = environment.get_next_state(state, action)
             reward = environment.get_reward(next_state)
             total_reward += reward
@@ -274,7 +271,6 @@ def evaluate_policy(agent, environment, episodes=100):
 
 
 def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes):
-    #print(f"Loading config for maze size {maze_size}")
     rows, cols = maze_size
     np.random.seed(seed)
     random.seed(seed)
@@ -283,14 +279,12 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
     environment = Environment(config, transition_prob=transition_prob)
 
     # Política Iterativa
-    #print("\nStarting Policy Iteration")
     pi_agent = Policy_Iteration_Agent(environment, gamma=gamma)
     start_time = time.time()
     pi_agent.policy_iteration()
     pi_time = time.time() - start_time
 
     # Q-Learning
-    #print("\nStarting Q-Learning")
     q_agent = Q_Learning_Agent(environment, alpha=alpha, gamma=gamma, epsilon=epsilon)
     start_time = time.time()
     q_agent.train(episodes=episodes)
@@ -302,6 +296,9 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
     pi_initial_utility = pi_agent.value_function[environment.start_state]
     q_initial_utility = q_agent.q_table[environment.start_state][np.argmax(q_agent.q_table[environment.start_state])]
 
+    pi_obtained_utility = evaluate_policy(pi_agent, environment, pi_policy, episodes)
+    q_obtained_utility = evaluate_policy(q_agent, environment, q_policy, episodes)
+
     return {
         "maze_size": maze_size,
         "seed": seed,
@@ -311,8 +308,10 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
         "epsilon": epsilon,
         "pi_time": pi_time,
         "pi_initial_utility": pi_initial_utility,
+        "pi_obtained_utility": pi_obtained_utility,
         "q_time": q_time,
         "q_initial_utility": q_initial_utility,
+        "q_obtained_utility": q_obtained_utility,
     }
 
 
@@ -332,7 +331,6 @@ def main():
                 for gamma in gamma_values:
                     for alpha in alpha_values:
                         for epsilon in epsilon_values:
-                            #print(f"\nRunning experiment with size {maze_size}, seed {seed}, transition_prob {transition_prob}, gamma {gamma}, alpha {alpha}, epsilon {epsilon}")
                             result = run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes)
                             results.append(result)
                             print(f"Experiment completed: {result}")
@@ -341,3 +339,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
