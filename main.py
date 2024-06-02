@@ -132,9 +132,9 @@ class Q_Learning_Agent:
                 state = next_state
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= self.epsilon_decay
-        #print("\nTraining completed.")
-        #print("\nQ-table:")
-        #print(self.q_table)
+        print("\nTraining completed.")
+        print("\nQ-table:")
+        print(self.q_table)
 
     def get_policy(self):
         policy = {}
@@ -199,7 +199,7 @@ class Policy_Iteration_Agent:
             self.value_function = new_value_function
             if delta < self.theta:
                 break
-        #print(f"Policy Evaluation converged in {iteration + 1} iterations")
+        print(f"Policy Evaluation converged in {iteration + 1} iterations")
 
     def policy_improvement(self):
         policy_stable = True
@@ -224,18 +224,18 @@ class Policy_Iteration_Agent:
         iteration = 0
         max_iterations = 100
         while iteration < max_iterations:
-            #print(f"Policy Iteration step {iteration}")
+            print(f"Policy Iteration step {iteration}")
             self.policy_evaluation()
             if self.policy_improvement():
                 break
             iteration += 20
-        #if iteration == max_iterations:
-        #    print("\nReached maximum iterations\n")
-        #print("\nPolicy Iteration completed.")
-        #print("\nPolicy:")
-        #print(self.policy)
-        #print("\nValue function:")
-        #print(self.value_function)
+        if iteration == max_iterations:
+            print("\nReached maximum iterations\n")
+        print("\nPolicy Iteration completed.")
+        print("\nPolicy:")
+        print(self.policy)
+        print("\nValue function:")
+        print(self.value_function)
 
 
 # Parámetros de experimentación
@@ -331,6 +331,7 @@ def main():
                 for gamma in gamma_values:
                     for alpha in alpha_values:
                         for epsilon in epsilon_values:
+                            print(f"Iniciando experimento para el laberinto de {maze_size}, seed={seed}, transition_prob={transition_prob}, gamma={gamma}, alpha={alpha}, epsilon={epsilon}")
                             result = run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes)
                             results.append(result)
                             print(f"Experiment completed: {result}")
