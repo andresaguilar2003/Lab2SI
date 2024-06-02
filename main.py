@@ -132,7 +132,7 @@ class Q_Learning_Agent:
                 state = next_state
             if self.epsilon > self.min_epsilon:
                 self.epsilon *= self.epsilon_decay
-            if (episode + 1) % 500 == 0:
+            if (episode + 1) % 20 == 0:
                 print(f"Episode {episode + 1}/{episodes} completed. Epsilon: {self.epsilon:.4f}")
         print("\nTraining completed.")
         print("\nQ-table:")
@@ -241,13 +241,13 @@ class Policy_Iteration_Agent:
 
 
 # Parámetros de experimentación
-maze_sizes = [(3, 4), (50, 50)]
+maze_sizes = [(3, 4), (20, 20)]
 seeds = [42, 259, 1020, 33, 567]
 transition_probs = [1.0, 0.8, 0.6]
 gamma_values = [1.0, 0.95]
 alpha_values = [0.1, 0.5]
 epsilon_values = [1.0, 0.5]
-episodes = 10000
+episodes = 100
 
 
 def load_maze_config(rows, cols):
