@@ -5,11 +5,7 @@ import json
 import numpy as np
 import re
 
-
-# METHOD DEFINITION
-# (You can directly import the method to use it)
-
-def draw_policy_map(problem_dict, policy=None, save_to_file=False):
+def draw_policy_map(problem_dict, policy=None, save_to_file=False, policy_type="Policy"):
     """
     Draws the specified problem and the learned policy for visualization.
 
@@ -22,12 +18,6 @@ def draw_policy_map(problem_dict, policy=None, save_to_file=False):
     If save_to_file is True, a PNG file with the problem name will be stored in the
     current directory
     """
-
-    # STEP 1 - PLOT THE PROBLEM
-
-    # Read the problem path and store it as a dictionary
-    # with open(problem_path, "r") as file:
-    #     problem_dict = json.load(file)
 
     # Extract the information from the JSON
     nrows, ncols = problem_dict["city"]["rows"], problem_dict["city"]["columns"]
@@ -93,12 +83,15 @@ def draw_policy_map(problem_dict, policy=None, save_to_file=False):
     ax.set_yticklabels(yticks_labels)
 
     # Display the x-axis ticks at the top
-    ax.tick_params(axis = "x",
-                   which = "both",
-                   bottom = False,
-                   labelbottom = False,
-                   top = True,
-                   labeltop = True)
+    ax.tick_params(axis="x",
+                   which="both",
+                   bottom=False,
+                   labelbottom=False,
+                   top=True,
+                   labeltop=True)
+
+    # Add the title to the plot based on the policy_type
+    plt.title(f"{policy_type} Policy")
 
     # STEP 2 - Draw the rewards
     # Trapped rewards
@@ -120,61 +113,31 @@ def draw_policy_map(problem_dict, policy=None, save_to_file=False):
     if policy:
         # Define the values to increment for drawing the arrows
         increments = {"UP": (0.5, 0.75, 0.5, 0.25),
-                    "RIGHT": (0.25, 0.5, 0.75, 0.5),
-                    "DOWN": (0.5, 0.25, 0.5, 0.75),
-                    "LEFT": (0.75, 0.5, 0.25, 0.5)}
+                      "RIGHT": (0.25, 0.5, 0.75, 0.5),
+                      "DOWN": (0.5, 0.25, 0.5, 0.75),
+                      "LEFT": (0.75, 0.5, 0.25, 0.5)}
 
         # Loop through all the policies
         # Note - policy is a Python dictionary
         # You need to pre-process it before using the method
         for (x, y), action in policy.items():
-
             # Extract the information
             action = str.upper(action)
             a, b, c, d = increments[action]
-            xytext= (y + a, x + b)
+            xytext = (y + a, x + b)
             xy = (y + c, x + d)
-            plt.annotate("", xy= xy, xytext=xytext, arrowprops={"arrowstyle": "->"})
+            plt.annotate("", xy=xy, xytext=xytext, arrowprops={"arrowstyle": "->"})
 
     # Show the image and, if necessary, store it
     fig = plt.gcf()
 
-    plt.show(block=False)
     if save_to_file:
         # Extract the file name
-        file_name = os.path.splitext(os.path.basename(problem_path))[0]
-        # Sanity check - if the file name is empty, give it a default name
-        if not file_name:
-            file_name = "image"
+        file_name = f"{policy_type.lower()}_policy.png"
 
         # Save the image
-        fig.savefig(file_name + ".png", bbox_inches = "tight")
+        fig.savefig(file_name, bbox_inches="tight")
+        print(f"Policy map saved to {file_name}")
+    else:
+        plt.show(block=False)
 
-
-
-# ACCESS POINT
-if __name__ == "__main__":
-
-    # MODIFY THESE VALUES TO LAUNCH THE CODE ##############################################
-    # Path to the problem JSON
-    problem_path = r"tests/easy/maze_3x4.json"
-
-    # Path to the policy JSON
-    policy_path = r"tests/Visualize/Visualize/example_policies/lesson5-rl_policy.json"
-
-    # Whether the image should only be shown on screen or also saved to a file
-    save_image = False
-    #######################################################################################
-
-    # DO NOT MODIFY THIS CODE - ONLY COMMENT IT IF YOU'RE NOT USING A JSON FILE ###########
-    # Transform the policy JSON into a Python dict
-    policy_json_dict = json.load(open(policy_path, "r"))
-    policy_dict = {(int(re.search(r"\((?P<x>\d+),\s*(?P<y>\d+)\)", key).group("x")),
-                    int(re.search(r"\((?P<x>\d+),\s*(?P<y>\d+)\)", key).group("y"))): value
-                    for key, value in policy_json_dict.items()}
-    ########################################################################################
-    print(policy_dict)
-
-    # Code launch
-    # If no policy is specified, only the map with the rewards is drawn
-    draw_policy_map(problem_path, policy=policy_dict, save_to_file=save_image)
