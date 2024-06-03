@@ -3,7 +3,6 @@ import numpy as np
 import random
 import json
 import time
-from draw_policy import draw_policy_map
 
 class Environment:
     def __init__(self, config, transition_prob=1.0):
@@ -239,7 +238,7 @@ class Policy_Iteration_Agent:
 
 
 # Parámetros de experimentación
-maze_sizes = [(3, 4), (50, 50)]
+maze_sizes = [(3, 4), (100, 100)]
 seeds = [42, 259, 1020, 33, 567]
 transition_probs = [1.0, 0.8, 0.6]
 gamma_values = [1.0, 0.95]
@@ -331,7 +330,7 @@ def main():
                 for gamma in gamma_values:
                     for alpha in alpha_values:
                         for epsilon in epsilon_values:
-                            print(f"Iniciando experimento para el laberinto de {maze_size}, seed={seed}, transition_prob={transition_prob}, gamma={gamma}, alpha={alpha}, epsilon={epsilon}")
+                            print(f"Starting experiment for maze of {maze_size}, seed={seed}, transition_prob={transition_prob}, gamma={gamma}, alpha={alpha}, epsilon={epsilon}")
                             result = run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes)
                             results.append(result)
                             print(f"Experiment completed: {result}")
