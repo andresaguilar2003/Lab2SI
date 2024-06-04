@@ -156,7 +156,8 @@ class Policy_Iteration_Agent:
         self.gamma = gamma
         self.theta = theta
         self.actions = ['Up', 'Down', 'Left', 'Right']
-        self.policy = np.empty((environment.rows, environment.columns), dtype='<U5')
+        #self.policy = np.empty((environment.rows, environment.columns), dtype='<U5')
+        self.policy = {}
         self.value_function = np.zeros((environment.rows, environment.columns))
 
         for row in range(environment.rows):
@@ -227,7 +228,7 @@ class Policy_Iteration_Agent:
             self.policy_evaluation()
             if self.policy_improvement():
                 break
-            iteration += 20
+            iteration += 1
         if iteration == max_iterations:
             print("\nReached maximum iterations\n")
         print("\nPolicy Iteration completed.")
@@ -238,7 +239,7 @@ class Policy_Iteration_Agent:
 
 
 # Parámetros de experimentación
-maze_sizes = [(3, 4), (100, 100)]
+maze_sizes = [(20, 20)]
 seeds = [42, 259, 1020, 33, 567]
 transition_probs = [1.0, 0.8, 0.6]
 gamma_values = [1.0, 0.95]
@@ -269,7 +270,7 @@ def evaluate_policy(agent, environment, policy, episodes=100):
     return total_reward / episodes
 
 
-def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes):
+def run_policy_iteration_experiment(maze_size, seed, transition_prob, gamma):
     rows, cols = maze_size
     np.random.seed(seed)
     random.seed(seed)
@@ -283,19 +284,36 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
     pi_agent.policy_iteration()
     pi_time = time.time() - start_time
 
+    pi_policy = pi_agent.policy
+    pi_initial_utility = pi_agent.value_function[environment.start_state]
+    pi_obtained_utility = evaluate_policy(pi_agent, environment, pi_policy, episodes)
+
+    return {
+        "maze_size": maze_size,
+        "seed": seed,
+        "transition_prob": transition_prob,
+        "gamma": gamma,
+        "pi_time": pi_time,
+        "pi_initial_utility": pi_initial_utility,
+        "pi_obtained_utility": pi_obtained_utility,
+    }
+
+def run_q_learning_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes):
+    rows, cols = maze_size
+    np.random.seed(seed)
+    random.seed(seed)
+
+    config = load_maze_config(rows, cols)
+    environment = Environment(config, transition_prob=transition_prob)
+
     # Q-Learning
     q_agent = Q_Learning_Agent(environment, alpha=alpha, gamma=gamma, epsilon=epsilon)
     start_time = time.time()
     q_agent.train(episodes=episodes)
     q_time = time.time() - start_time
 
-    pi_policy = pi_agent.policy
     q_policy = q_agent.get_policy()
-
-    pi_initial_utility = pi_agent.value_function[environment.start_state]
     q_initial_utility = q_agent.q_table[environment.start_state][np.argmax(q_agent.q_table[environment.start_state])]
-
-    pi_obtained_utility = evaluate_policy(pi_agent, environment, pi_policy, episodes)
     q_obtained_utility = evaluate_policy(q_agent, environment, q_policy, episodes)
 
     return {
@@ -305,14 +323,10 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
         "gamma": gamma,
         "alpha": alpha,
         "epsilon": epsilon,
-        "pi_time": pi_time,
-        "pi_initial_utility": pi_initial_utility,
-        "pi_obtained_utility": pi_obtained_utility,
         "q_time": q_time,
         "q_initial_utility": q_initial_utility,
         "q_obtained_utility": q_obtained_utility,
     }
-
 
 def save_results(results, filename='results.csv'):
     keys = results[0].keys()
@@ -321,19 +335,25 @@ def save_results(results, filename='results.csv'):
         dict_writer.writeheader()
         dict_writer.writerows(results)
 
-
 def main():
     results = []
+
+    # Experimentos para Policy Iteration
     for maze_size in maze_sizes:
         for seed in seeds:
             for transition_prob in transition_probs:
                 for gamma in gamma_values:
+                    print(f"Starting Policy Iteration experiment for maze of {maze_size}, seed={seed}, transition_prob={transition_prob}, gamma={gamma}")
+                    result = run_policy_iteration_experiment(maze_size, seed, transition_prob, gamma)
+                    results.append(result)
+                    print(f"Policy Iteration experiment completed: {result}")
                     for alpha in alpha_values:
                         for epsilon in epsilon_values:
-                            print(f"Starting experiment for maze of {maze_size}, seed={seed}, transition_prob={transition_prob}, gamma={gamma}, alpha={alpha}, epsilon={epsilon}")
-                            result = run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes)
+                            print(f"Starting Q-Learning experiment for maze of {maze_size}, seed={seed}, transition_prob={transition_prob}, gamma={gamma}, alpha={alpha}, epsilon={epsilon}")
+                            result = run_q_learning_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, episodes)
                             results.append(result)
-                            print(f"Experiment completed: {result}")
+                            print(f"Q-Learning experiment completed: {result}\n")
+
     save_results(results)
 
 

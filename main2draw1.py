@@ -247,13 +247,13 @@ class Policy_Iteration_Agent:
 
 
 # Parámetros de experimentación
-maze_sizes = [(100, 100)]
+maze_sizes = [(3, 4)]
 seeds = [259]
 transition_probs = [0.8]
 gamma_values = [1.0]
 alpha_values = [0.1]
 epsilon_values = [1.0]
-episodes = 100
+episodes = 10000
 
 def load_maze_config(rows, cols):
     config_path = f"tests/evaluation/maze_{rows}x{cols}.json"
@@ -308,9 +308,9 @@ def run_experiment(maze_size, seed, transition_prob, gamma, alpha, epsilon, epis
     q_obtained_utility = evaluate_policy(q_agent, environment, q_policy, episodes)
 
     pi_policy_dict = pi_agent.get_policy()
-    draw_policy_map(config, pi_policy_dict, save_to_file=True, policy_type="Policy Iteration")
+    draw_policy_map(config, pi_policy_dict, save_to_file=False, policy_type="Policy Iteration")
 
-    draw_policy_map(config, q_policy, save_to_file=True, policy_type="Q-Learning")
+    draw_policy_map(config, q_policy, save_to_file=False, policy_type="Q-Learning")
 
     return {
         "maze_size": maze_size,
